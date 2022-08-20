@@ -177,7 +177,7 @@ func TestGetUserByID(t *testing.T) {
 func TestUpdateUser(t *testing.T) {
 
 	var AuthEmail, AuthPassword string
-	var AuthID uint32
+	var AuthID uint
 
 	err := refreshUserTable()
 	if err != nil {
@@ -332,7 +332,7 @@ func TestUpdateUser(t *testing.T) {
 func TestDeleteUser(t *testing.T) {
 
 	var AuthEmail, AuthPassword string
-	var AuthID uint32
+	var AuthID uint
 
 	err := refreshUserTable()
 	if err != nil {

@@ -118,7 +118,7 @@ func TestLogin(t *testing.T) {
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(server.Login)
 		handler.ServeHTTP(rr, req)
-
+		log.Println("v.errorMessage:" + v.errorMessage)
 		assert.Equal(t, rr.Code, v.statusCode)
 		if v.statusCode == 200 {
 			assert.NotEqual(t, rr.Body.String(), "")

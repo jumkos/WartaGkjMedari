@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
-	_ "github.com/jinzhu/gorm/dialects/mysql" //mysql database driver
+	"gorm.io/driver/mysql"
+	_ "gorm.io/driver/mysql" //mysql database driver
 
 	"github.com/jumkos/WartaGkjMedari/api/models"
 )
@@ -18,18 +22,27 @@ type Server struct {
 	Router *mux.Router
 }
 
-func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, DbName string) {
+func (server *Server) Initialize(DbUser, DbPassword, DbPort, DbHost, DbName string) {
 
 	var err error
 
 	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
-	log.Println("DBURL :" + DBURL)
-	server.DB, err = gorm.Open(Dbdriver, DBURL)
+
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		logger.Config{
+			SlowThreshold: time.Second, // Slow SQL threshold
+			LogLevel:      logger.Info, // Log level
+			Colorful:      true,        // Disable color
+		},
+	)
+
+	server.DB, err = gorm.Open(mysql.Open(DBURL), &gorm.Config{Logger: newLogger})
 	if err != nil {
-		fmt.Printf("Cannot connect to %s database", Dbdriver)
+		fmt.Println("Cannot connect to database")
 		log.Fatal("This is the error:", err)
 	} else {
-		fmt.Printf("We are connected to the %s database", Dbdriver)
+		fmt.Println("We are connected to the database")
 	}
 
 	server.DB.Debug().AutoMigrate(&models.User{}, &models.Renungan{}) //database migration

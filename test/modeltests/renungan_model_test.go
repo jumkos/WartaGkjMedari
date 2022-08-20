@@ -7,6 +7,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/jumkos/WartaGkjMedari/api/models"
 	"gopkg.in/go-playground/assert.v1"
+	"gorm.io/gorm"
 )
 
 func TestFindAllRenungan(t *testing.T) {
@@ -40,7 +41,7 @@ func TestSaveRenungan(t *testing.T) {
 	}
 
 	newRenungan := models.Renungan{
-		ID:       1,
+		Model: gorm.Model{ID: 1},
 		Title:    "This is the title",
 		Content:  "This is the content",
 		AuthorID: user.ID,
@@ -88,7 +89,7 @@ func TestUpdateARenungan(t *testing.T) {
 		log.Fatalf("Error Seeding table")
 	}
 	postUpdate := models.Renungan{
-		ID:       1,
+		Model: gorm.Model{ID: 1},
 		Title:    "modiUpdate",
 		Content:  "modiupdate@gmail.com",
 		AuthorID: renungan.AuthorID,

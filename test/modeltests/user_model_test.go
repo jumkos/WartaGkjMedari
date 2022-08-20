@@ -7,6 +7,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/jumkos/WartaGkjMedari/api/models"
 	"gopkg.in/go-playground/assert.v1"
+	"gorm.io/gorm"
 )
 
 func TestFindAllUsers(t *testing.T) {
@@ -36,7 +37,7 @@ func TestSaveUser(t *testing.T) {
 		log.Fatal(err)
 	}
 	newUser := models.User{
-		ID:       1,
+		Model: gorm.Model{ID: 1},
 		Email:    "test@gmail.com",
 		Nickname: "test",
 		Password: "password",
@@ -85,7 +86,7 @@ func TestUpdateAUser(t *testing.T) {
 	}
 
 	userUpdate := models.User{
-		ID:       1,
+		Model: gorm.Model{ID: 1},
 		Nickname: "modiUpdate",
 		Email:    "modiupdate@gmail.com",
 		Password: "password",

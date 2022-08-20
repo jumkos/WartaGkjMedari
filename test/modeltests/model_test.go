@@ -6,10 +6,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 	"github.com/jumkos/WartaGkjMedari/api/controllers"
 	"github.com/jumkos/WartaGkjMedari/api/models"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var server = controllers.Server{}
@@ -31,27 +32,19 @@ func Database() {
 
 	var err error
 
-	TestDbDriver := os.Getenv("TestDbDriver")
-
 	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", os.Getenv("TestDbUser"), os.Getenv("TestDbPassword"), os.Getenv("TestDbHost"), os.Getenv("TestDbPort"), os.Getenv("TestDbName"))
-	server.DB, err = gorm.Open(TestDbDriver, DBURL)
+	server.DB, err = gorm.Open(mysql.Open(DBURL))
 	if err != nil {
-		fmt.Printf("Cannot connect to %s database\n", TestDbDriver)
+		fmt.Println("Cannot connect to database")
 		log.Fatal("This is the error:", err)
 	} else {
-		fmt.Printf("We are connected to the %s database\n", TestDbDriver)
+		fmt.Println("We are connected to the database")
 	}
 }
 
 func refreshUserTable() error {
-	err := server.DB.DropTableIfExists(&models.User{}).Error
-	if err != nil {
-		return err
-	}
-	err = server.DB.AutoMigrate(&models.User{}).Error
-	if err != nil {
-		return err
-	}
+	server.DB.Migrator().DropTable(&models.User{})
+	server.DB.AutoMigrate(&models.User{})
 	log.Printf("Successfully refreshed table")
 	return nil
 }
@@ -99,14 +92,8 @@ func seedUsers() error {
 
 func refreshUserAndRenunganTable() error {
 
-	err := server.DB.DropTableIfExists(&models.User{}, &models.Renungan{}).Error
-	if err != nil {
-		return err
-	}
-	err = server.DB.AutoMigrate(&models.User{}, &models.Renungan{}).Error
-	if err != nil {
-		return err
-	}
+	server.DB.Migrator().DropTable(&models.User{}, &models.Renungan{})
+	server.DB.AutoMigrate(&models.User{}, &models.Renungan{})
 	log.Printf("Successfully refreshed tables")
 	return nil
 }

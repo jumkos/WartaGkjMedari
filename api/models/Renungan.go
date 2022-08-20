@@ -6,58 +6,56 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type Renungan struct {
-	ID        uint64    `gorm:"primary_key;auto_increment" json:"id"`
-	Title     string    `gorm:"size:255;not null;unique" json:"title"`
-	Content   string    `gorm:"size:255;not null;" json:"content"`
-	Author    User      `json:"author"`
-	AuthorID  uint32    `gorm:"not null" json:"author_id"`
-	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
+	gorm.Model
+	Title    string `gorm:"size:255;not null;unique" json:"title"`
+	Content  string `gorm:"size:255;not null;" json:"content"`
+	Author   User   `json:"author"`
+	AuthorID uint   `gorm:"not null" json:"author_id"`
 }
 
-func (p *Renungan) Prepare() {
-	p.ID = 0
-	p.Title = html.EscapeString(strings.TrimSpace(p.Title))
-	p.Content = html.EscapeString(strings.TrimSpace(p.Content))
-	p.Author = User{}
-	p.CreatedAt = time.Now()
-	p.UpdatedAt = time.Now()
+func (r *Renungan) Prepare() {
+	r.ID = 0
+	r.Title = html.EscapeString(strings.TrimSpace(r.Title))
+	r.Content = html.EscapeString(strings.TrimSpace(r.Content))
+	r.Author = User{}
+	r.CreatedAt = time.Now()
+	r.UpdatedAt = time.Now()
 }
 
-func (p *Renungan) Validate() error {
+func (r *Renungan) Validate() error {
 
-	if p.Title == "" {
+	if r.Title == "" {
 		return errors.New("required Title")
 	}
-	if p.Content == "" {
+	if r.Content == "" {
 		return errors.New("required Content")
 	}
-	if p.AuthorID < 1 {
+	if r.AuthorID < 1 {
 		return errors.New("required Author")
 	}
 	return nil
 }
 
-func (p *Renungan) SaveRenungan(db *gorm.DB) (*Renungan, error) {
+func (r *Renungan) SaveRenungan(db *gorm.DB) (*Renungan, error) {
 	var err error
-	err = db.Debug().Model(&Renungan{}).Create(&p).Error
+	err = db.Debug().Model(&Renungan{}).Create(&r).Error
 	if err != nil {
 		return &Renungan{}, err
 	}
-	if p.ID != 0 {
-		err = db.Debug().Model(&User{}).Where("id = ?", p.AuthorID).Take(&p.Author).Error
+	if r.ID != 0 {
+		err = db.Debug().Model(&User{}).Where("id = ?", r.AuthorID).Take(&r.Author).Error
 		if err != nil {
 			return &Renungan{}, err
 		}
 	}
-	return p, nil
+	return r, nil
 }
 
-func (p *Renungan) FindAllRenungan(db *gorm.DB) (*[]Renungan, error) {
+func (r *Renungan) FindAllRenungan(db *gorm.DB) (*[]Renungan, error) {
 	var err error
 	posts := []Renungan{}
 	err = db.Debug().Model(&Renungan{}).Limit(100).Find(&posts).Error
@@ -75,44 +73,44 @@ func (p *Renungan) FindAllRenungan(db *gorm.DB) (*[]Renungan, error) {
 	return &posts, nil
 }
 
-func (p *Renungan) FindRenunganByID(db *gorm.DB, pid uint64) (*Renungan, error) {
+func (r *Renungan) FindRenunganByID(db *gorm.DB, pid uint) (*Renungan, error) {
 	var err error
-	err = db.Debug().Model(&Renungan{}).Where("id = ?", pid).Take(&p).Error
+	err = db.Debug().Model(&Renungan{}).Where("id = ?", pid).Take(&r).Error
 	if err != nil {
 		return &Renungan{}, err
 	}
-	if p.ID != 0 {
-		err = db.Debug().Model(&User{}).Where("id = ?", p.AuthorID).Take(&p.Author).Error
+	if r.ID != 0 {
+		err = db.Debug().Model(&User{}).Where("id = ?", r.AuthorID).Take(&r.Author).Error
 		if err != nil {
 			return &Renungan{}, err
 		}
 	}
-	return p, nil
+	return r, nil
 }
 
-func (p *Renungan) UpdateARenungan(db *gorm.DB) (*Renungan, error) {
+func (r *Renungan) UpdateARenungan(db *gorm.DB) (*Renungan, error) {
 
 	var err error
 
-	err = db.Debug().Model(&Renungan{}).Where("id = ?", p.ID).Updates(Renungan{Title: p.Title, Content: p.Content, UpdatedAt: time.Now()}).Error
+	err = db.Debug().Model(&Renungan{}).Where("id = ?", r.ID).Updates(Renungan{Title: r.Title, Content: r.Content}).Error
 	if err != nil {
 		return &Renungan{}, err
 	}
-	if p.ID != 0 {
-		err = db.Debug().Model(&User{}).Where("id = ?", p.AuthorID).Take(&p.Author).Error
+	if r.ID != 0 {
+		err = db.Debug().Model(&User{}).Where("id = ?", r.AuthorID).Take(&r.Author).Error
 		if err != nil {
 			return &Renungan{}, err
 		}
 	}
-	return p, nil
+	return r, nil
 }
 
-func (p *Renungan) DeleteARenungan(db *gorm.DB, pid uint64, uid uint32) (int64, error) {
+func (r *Renungan) DeleteARenungan(db *gorm.DB, pid uint, uid uint) (int64, error) {
 
 	db = db.Debug().Model(&Renungan{}).Where("id = ? and author_id = ?", pid, uid).Take(&Renungan{}).Delete(&Renungan{})
 
 	if db.Error != nil {
-		if gorm.IsRecordNotFoundError(db.Error) {
+		if errors.Is(db.Error, gorm.ErrRecordNotFound) {
 			return 0, errors.New("post not found")
 		}
 		return 0, db.Error

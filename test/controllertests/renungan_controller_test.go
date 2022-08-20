@@ -36,7 +36,7 @@ func TestCreateRenungan(t *testing.T) {
 		statusCode   int
 		title        string
 		content      string
-		author_id    uint32
+		author_id    uint
 		tokenGiven   string
 		errorMessage string
 	}{
@@ -142,9 +142,9 @@ func TestGetRenungan(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(server.GetAllRenungan)
 	handler.ServeHTTP(rr, req)
-	
+
 	var renungan []models.Renungan
-	err = json.Unmarshal([]byte(rr.Body.Bytes()),&renungan)
+	err = json.Unmarshal([]byte(rr.Body.Bytes()), &renungan)
 	if err != nil {
 		t.Errorf("Cannot convert to json: %v", err)
 	}
@@ -166,7 +166,7 @@ func TestGetRenunganByID(t *testing.T) {
 		statusCode   int
 		title        string
 		content      string
-		author_id    uint32
+		author_id    uint
 		errorMessage string
 	}{
 		{
@@ -211,8 +211,8 @@ func TestGetRenunganByID(t *testing.T) {
 func TestUpdateRenungan(t *testing.T) {
 
 	var RenunganUserEmail, RenunganUserPassword string
-	var AuthRenunganAuthorID uint32
-	var AuthRenunganID uint64
+	var AuthRenunganAuthorID uint
+	var AuthRenunganID uint
 
 	err := refreshUserAndRenunganTable()
 	if err != nil {
@@ -253,7 +253,7 @@ func TestUpdateRenungan(t *testing.T) {
 		statusCode   int
 		title        string
 		content      string
-		author_id    uint32
+		author_id    uint
 		tokenGiven   string
 		errorMessage string
 	}{
@@ -360,8 +360,8 @@ func TestUpdateRenungan(t *testing.T) {
 func TestDeleteRenungan(t *testing.T) {
 
 	var RenunganUserEmail, RenunganUserPassword string
-	var RenunganUserID uint32
-	var AuthRenunganID uint64
+	var RenunganUserID uint
+	var AuthRenunganID uint
 
 	err := refreshUserAndRenunganTable()
 	if err != nil {
@@ -396,7 +396,7 @@ func TestDeleteRenungan(t *testing.T) {
 	}
 	postSample := []struct {
 		id           string
-		author_id    uint32
+		author_id    uint
 		tokenGiven   string
 		statusCode   int
 		errorMessage string

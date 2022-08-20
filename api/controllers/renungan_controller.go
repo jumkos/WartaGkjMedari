@@ -75,7 +75,7 @@ func (server *Server) GetRenungan(w http.ResponseWriter, r *http.Request) {
 	}
 	renungan := models.Renungan{}
 
-	postReceived, err := renungan.FindRenunganByID(server.DB, pid)
+	postReceived, err := renungan.FindRenunganByID(server.DB, uint(pid))
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -185,7 +185,7 @@ func (server *Server) DeleteRenungan(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
 		return
 	}
-	_, err = renungan.DeleteARenungan(server.DB, pid, uid)
+	_, err = renungan.DeleteARenungan(server.DB, uint(pid), uid)
 	if err != nil {
 		responses.ERROR(w, http.StatusBadRequest, err)
 		return
